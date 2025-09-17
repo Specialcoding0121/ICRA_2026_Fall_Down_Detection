@@ -97,7 +97,7 @@ This setup provides robust coverage of motion and impact signals without comprom
 - **8 real-world scenarios + 1 empty baseline**.  
 - Each trial lasted 20–120 seconds, with frame-level annotation aligned via vibration energy peaks.  
 
-![scenarios in the bathroom](./docs/Figures/Exp_behavior.png)  
+![scenarios in the bathroom](./docs/Figures/Exp_Behavior.png)  
 *Figure 4. Nine evaluation scenarios in the bathroom environment.*  
 
 ---
