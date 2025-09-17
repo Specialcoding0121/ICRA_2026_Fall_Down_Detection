@@ -29,9 +29,6 @@ Falls in bathrooms represent a **critical health risk** for older adults. Over 8
 
 Our proposed system introduces a **privacy-preserving multimodal fall detection framework (Radar + Vibration)** with a **cross-conditioned fusion design**. Unlike wearable or camera-based systems, our solution is **non-intrusive, privacy-aware, and suitable for real bathrooms**.  
 
-![Overall structure](./docs/Figures/architecture.png)  
-*Figure 1. Overall architecture of the proposed dual-branch fusion framework.*
-
 ---
 
 ## 2. Motivation and Background
@@ -90,6 +87,9 @@ This setup provides robust coverage of motion and impact signals without comprom
 - **Low-rank bilinear interaction (MLB)**: enforces multiplicative agreement between modalities.  
 - **Fusion Switch–MoE**: dynamically selects expert pathways under different activity contexts.  
 
+![Overall structure](./docs/Figures/architecture.png)  
+*Figure 1. Overall architecture of the proposed dual-branch fusion framework.*
+
 ---
 
 ## 6. Experimental Design
@@ -105,22 +105,32 @@ This setup provides robust coverage of motion and impact signals without comprom
 ## 7. Results and Performance
 
 ### 7.1 Scenario-wise Metrics
-Our model achieved **Acc = 96.28%**, **Prec = 95.47%**, **Rec = 87.49%**, **F1 = 91.23%**.  
 
-![Overall ROC](./docs/Figures/ROC.png)  
-*Figure 5. Overall ROC and precision–recall curves across scenarios.*  
+![eight senerio confusion matrices](./docs/Figures/eight_senerio.png)  
+
+This table summarizes the performance of our proposed network across eight bathroom scenarios. The system achieves an overall accuracy of 96.28%, precision of 95.47%, recall of 87.49%, and F1-score of 91.23%. Even under challenging conditions such as heavy object drops (accuracy 91.3%, F1 78.6%) and bent posture walking (accuracy 94.9%, F1 88.1%), the model maintains strong performance. In easier cases like squatting, the system reaches nearly perfect results (accuracy 99.3%, precision 100%, F1 98.4%). These results highlight not only the high overall accuracy but also the stability of performance across diverse real-world scenarios, making the method reliable for deployment in bathroom environments.
 
 - ROC AUC = **0.968**  
 - High robustness across both fall and non-fall activities.  
 
+![Overall ROC](./docs/Figures/ROC.png)  
+
+*Figure 5. Overall ROC and precision–recall curves across scenarios.*  
+
 ### 7.2 Comparison with State-of-the-Art
-- Outperforms radar-only and vibration-only baselines.  
-- Achieves **best precision and F1** among multimodal methods, reducing **false alarms** from object drops.  
+
+![performace comparation](./docs/Figures/comparation.png)  
+
+Compared to prior radar- or multimodal-based approaches, our method not only delivers the highest precision (95.47%) but also sustains balanced accuracy (96.3%) and recall (87.49%), avoiding the trade-offs seen in other methods. For example, models emphasizing recall often suffer sharp drops in precision (e.g., ResNet-50: recall 98.8% but precision only 50.6%), while radar-only CNN–LSTM models achieve high accuracy but lower precision. In contrast, our framework remains both high-performing and stable across all metrics, making it more reliable for real-world deployment.
 
 ### 7.3 Ablation Study
 - Removing **Mamba2Block1D/GLRU**: recall drops significantly.  
 - Removing **ICA**: increases false positives.  
 - Full **cross-conditioned fusion** delivers the best trade-off.  
+
+![ablation study](./docs/Figures/ablation_study.png)  
+
+This table presents the results of our ablation study, where individual components of the proposed framework were selectively removed to assess their contributions. When using only a single modality (either radar or vibration), the model performs noticeably worse, with overall accuracy below 93% and F1 scores under 84%. As more components are introduced—such as ICA and cross-modal bilinear fusion—the performance steadily improves, demonstrating the benefit of combining motion and impact cues with attention-based modeling. The complete configuration, with all modules enabled, achieves the best balance, reaching 96.3% accuracy, 95.5% precision, 87.5% recall, and a 91.2% F1 score. This confirms that each module contributes to performance gains, and the full multimodal design provides the strongest and most reliable detection results.
 
 ---
 
