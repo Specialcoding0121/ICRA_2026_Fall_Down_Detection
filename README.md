@@ -153,8 +153,6 @@ CAMF-SR matches the strongest radar-only systems on accuracy but **exceeds prior
 
 Table III compares CAMF-SR with 16 prior fall detection methods across various sensing modalities. Our framework achieves the second-highest accuracy (96.1%), the highest precision (94.8%), and competitive recall, demonstrating its strong ability to reduce false alarms while maintaining reliable detection in bathroom environments.
 
-![Benchmark Comparison](./docs/Figures/benchmark_comparison.png)
-
 ### 7.3 Ablation Study
 We ablate **LR-temporal blocks**, **MoE+Attention**, **ICA**, and the **fusion stack**. Cross-conditioning + MLB notably boosts F1; the fusion Switch–MoE contributes additional robustness at constant-time inference.
 
