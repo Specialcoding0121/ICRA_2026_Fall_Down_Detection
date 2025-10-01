@@ -48,8 +48,16 @@ Experiments were conducted in a full-scale bathroom mock-up (approx. **3.70 × 2
 ![Bathroom Floorplan](./docs/Figures/bathroom_floorplan.png)
 ![Setup Diagram](./docs/Figures/Experiment_Setting.png)
 
-**Dataset scale.** > **3 hours** of synchronized data; ~**1.1×10^5 radar frames** (≈12.5 Hz) and **3.1×10^6 vibration samples** (100 Hz). Frame-level labels (±250 ms tolerance) and subject-independent **60/20/20** splits (train/val/test).  
-**Release plan.** Dataset will be publicly released upon paper acceptance/publication.
+
+| Characteristic      | All (N=48)     | Male (n=24)   | Female (n=24) |
+|---------------------|----------------|---------------|---------------|
+| Age (years)         | 25 ± 5         | 25 ± 5        | 25 ± 5        |
+| Height (m)          | 1.69 ± 0.7     | 1.70 ± 0.6    | 1.66 ± 0.4    |
+| Body mass (kg)      | 68.5 ± 9.7     | 75.2 ± 6.1    | 61.8 ± 5.4    |
+| BMI (kg/m²)         | 23.1 ± 2.6     | 23.7 ± 2.0    | 22.4 ± 1.9    |
+| Dominant hand (R/L) | 5 / 1          | 3 / 0         | 2 / 1         |
+
+This table summarizes the demographics of the 48 participants. The balanced gender distribution and similar anthropometrics across groups ensured unbiased data collection and reliable evaluation of the proposed framework. In total, more than 3 hours of synchronized multimodal data were collected, comprising approximately 1.1×10^5 radar frames (≈12.5 Hz) and 3.1×10^6 vibration samples (100 Hz). Each sequence was annotated with frame-level labels (±250 ms tolerance) and organized into subject-independent splits (60% training, 20% validation, 20% testing). The dataset will be publicly released upon acceptance of the paper, enabling full reproducibility and future benchmarking.
 
 ---
 
