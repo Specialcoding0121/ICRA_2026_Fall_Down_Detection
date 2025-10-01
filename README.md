@@ -34,7 +34,7 @@ Wearables are often not worn in bathrooms; cameras/microphones are unsuitable du
 ---
 
 ## 3. Multimodal Sensor Selection
-We evaluated privacy-preserving modalities under criteria such as **target relevance, recall, deployability, privacy, availability, energy, and cost**. The pairing of **FMCW mmWave radar** and **triaxial vibration** obtained the highest composite score for bathrooms: radar supplies **pre-impact kinematics**; vibration provides **high-SNR impact cues**.
+We systematically assessed 14 common ambient sensing modalities, including Wi-Fi CSI, infrared, thermal imaging, pressure mats, acoustic sensing, mmWave radar, and vibration sensors. Each modality was evaluated against seven key criteria: target relevance, recall under noisy conditions, deployability in wet and constrained bathroom spaces, inherent privacy preservation, device availability, energy efficiency, and overall cost. While several modalities showed promise, most were limited by either poor robustness in wet environments (e.g., acoustic sensing), low privacy (e.g., cameras, thermal imaging), or low deployability (e.g., floor mats). The final selection—FMCW mmWave radar and triaxial vibration sensors—achieved the highest composite usability score. Radar provides reliable pre-impact kinematics by capturing body motion trajectories, while vibration sensors offer high-SNR signatures of localized impacts. This complementary pairing ensures both macro-motion and micro-impact cues are captured, enabling privacy-preserving yet highly accurate fall detection in bathrooms.
 
 ---
 
