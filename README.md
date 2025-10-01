@@ -1,4 +1,4 @@
-# PerCom — A Privacy-Preserving Multimodal Fall Detection Framework in Bathrooms  
+# PerCom 2026 — A Privacy-Preserving Multimodal Fall Detection Framework in Bathrooms  
 
 > **Notice:** Our manuscript is currently under peer review (IEEE PerCom 2026). In the meantime, we have released the full training/evaluation code, preprocessing pipelines, and model implementations for early access and community feedback. We warmly invite reviewers and fellow researchers to explore the repository, reproduce our results, and open issues/PRs.  
 > **Dataset:** The synchronized mmWave–vibration dataset will be made publicly available upon publication.
