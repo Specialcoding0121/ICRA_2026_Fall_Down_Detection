@@ -1,145 +1,167 @@
-# ICRA 2026 — A Privacy-Preserving Multimodal Fall Detection Framework in Bathrooms  
+# PerCom — A Privacy-Preserving Multimodal Fall Detection Framework in Bathrooms  
 
-> **Notice:** This repository hosts the official implementation of our ICRA 2026 paper.  
-> The full dataset and pretrained models will be released upon publication.  
-> In the meantime, we provide **data-processing pipelines, feature-extraction scripts, and the proposed dual-branch model** for reproducibility and community feedback.  
-
----
+> **Notice:** Our manuscript is currently under peer review (IEEE PerCom 2026). In the meantime, we have released the full training/evaluation code, preprocessing pipelines, and model implementations for early access and community feedback. We warmly invite reviewers and fellow researchers to explore the repository, reproduce our results, and open issues/PRs.  
+> **Dataset:** The synchronized mmWave–vibration dataset will be made publicly available upon publication.
 
 ## Table of Contents
-- [1. Introduction](#1-introduction)  
-- [2. Motivation and Background](#2-motivation-and-background)  
-- [3. Multimodal Sensor Setup](#3-multimodal-sensor-setup)  
-- [4. Dataset Collection](#4-dataset-collection)  
-- [5. Model Architecture](#5-model-architecture)  
-  - [5.1 Radar Stream (Motion–Mamba)](#51-radar-stream-motionmamba)  
-  - [5.2 Vibration Stream (Impact–Griffin)](#52-vibration-stream-impactgriffin)  
-  - [5.3 Cross-Modal Fusion](#53-cross-modal-fusion)  
-- [6. Experimental Design](#6-experimental-design)  
-- [7. Results and Performance](#7-results-and-performance)  
-  - [7.1 Scenario-wise Metrics](#71-scenario-wise-metrics)  
-  - [7.2 Comparison with State-of-the-Art](#72-comparison-with-state-of-the-art)  
-  - [7.3 Ablation Study](#73-ablation-study)  
-- [8. Conclusion and Future Work](#8-conclusion-and-future-work)  
+- [1. Introduction](#1-introduction)
+- [2. Motivation and Background](#2-motivation-and-background)
+- [3. Multimodal Sensor Selection](#3-multimodal-sensor-selection)
+- [4. System Setup and Dataset Collection](#4-system-setup-and-dataset-collection)
+- [5. Experimental Design](#5-experimental-design)
+- [6. Model Architecture](#6-model-architecture)
+  - [6.1 Radar (Motion–Mamba) Stream](#61-radar-motionmamba-stream)
+  - [6.2 Vibration (Impact–Griffin) Stream](#62-vibration-impactgriffin-stream)
+  - [6.3 Cross-Conditioned Fusion & Classifier](#63-cross-conditioned-fusion--classifier)
+- [7. Results and Performance](#7-results-and-performance)
+  - [7.1 Scenario-wise Metrics](#71-scenario-wise-metrics)
+  - [7.2 Comparison with State-of-the-Art](#72-comparison-with-state-of-the-art)
+  - [7.3 Ablation Study](#73-ablation-study)
+- [8. Conclusion and Future Work](#8-conclusion-and-future-work)
 
 ---
 
 ## 1. Introduction
-Falls in bathrooms represent a **critical health risk** for older adults. Over 80% of indoor falls occur in bathrooms, where **wet floors, confined spaces, and hard surfaces** magnify the danger.  
+Falls are a major hazard for older adults living independently, with bathrooms posing the **highest risk** due to wet floors, hard surfaces, and confined geometry. **CAMF-SR** (Context-Aware Multimodal Fusion with Sparse Routing) is a **privacy-preserving** fall detection system that fuses **mmWave radar** (pre-impact motion) and **floor vibration** (impact evidence). Our design enforces **collapse–impact temporal consistency** via **cross-conditioned fusion**, and achieves **high precision** while keeping **latency predictable** for embedded deployment.
 
-Our proposed system introduces a **privacy-preserving multimodal fall detection framework (Radar + Vibration)** with a **cross-conditioned fusion design**. Unlike wearable or camera-based systems, our solution is **non-intrusive, privacy-aware, and suitable for real bathrooms**.  
+![Overview Diagram](./docs/Figures/overview.png)
 
 ---
 
 ## 2. Motivation and Background
-- **Wearables**: suffer from low adherence, discomfort, and water sensitivity.  
-- **Cameras/microphones**: raise serious **privacy concerns** in bathrooms.  
-- **Radar-only**: often confuses object drops or clutter with falls.  
-- **Vibration-only**: cannot reliably separate human impacts from object impacts.  
-
-**Key insight**: fusing **motion cues from radar** with **impact cues from vibration sensors** provides complementary information, reducing false alarms and preserving sensitivity to real falls.  
+Wearables are often not worn in bathrooms; cameras/microphones are unsuitable due to privacy concerns; and unimodal ambient sensing (radar **or** vibration) struggles with confounders (object drops, water-induced clutter, floor resonance). We therefore pursue a **multimodal** approach that jointly captures **long-horizon motion** and **short, high-energy impacts** while explicitly modeling their temporal relationship.
 
 ---
 
-## 3. Multimodal Sensor Setup
-Two compact sensing nodes were deployed in a full-scale bathroom mock-up:  
+## 3. Multimodal Sensor Selection
+We evaluated privacy-preserving modalities under criteria such as **target relevance, recall, deployability, privacy, availability, energy, and cost**. The pairing of **FMCW mmWave radar** and **triaxial vibration** obtained the highest composite score for bathrooms: radar supplies **pre-impact kinematics**; vibration provides **high-SNR impact cues**.
 
-- **mmWave Radar Node (C4001)**: mounted at **2.45 m height**, covering the full shower bay.  
-- **3D Vibration Node (ADXL345)**: placed at **floor level** on the shower platform, ensuring strong coupling with impact energy.  
-
-![Bathroom floorplan](./docs/Figures/bathroom_floorplan.png)  
-*Figure 2. Bathroom floorplan with annotated dimensions and sensor placement.*  
-
-![radar and vibration](./docs/Figures/Experiment_Setting.png)  
-*Figure 3. Experimental setup showing radar (wall-mounted) and vibration node (floor-mounted).*  
-
-This setup provides robust coverage of motion and impact signals without compromising user privacy.  
+![Sensor Scoring Framework](./docs/Figures/sensor_selection_framework.png)
+![Privacy-Focused Modality Evaluation Summary](./docs/Figures/modality_evaluation_summary.png)
 
 ---
 
-## 4. Dataset Collection
-- **Participants**: 48 healthy adults (24 male, 24 female).  
-- **Scenarios (9 total)**: empty, light/heavy object drops, normal/bent/wall-supported walking, standing, squatting, intentional falls.  
-- **Environment**: real bathroom mock-up with **running shower, wet floors, high humidity**.  
-- **Size**:  
-  - **Radar**: ~110,000 frames (12.5 Hz)  
-  - **Vibration**: ~3.1 million samples (100 Hz)  
-  - **Total duration**: >9 hours  
+## 4. System Setup and Dataset Collection
+Experiments were conducted in a full-scale bathroom mock-up (approx. **3.70 × 2.50 m**), with ceramic tiles, glass partition, and running water.
 
-👉 Dataset will be released on **IEEE DataPort** upon publication.  
+- **mmWave radar node:** wall-mounted near ceiling (~**2.45 m** height), unobstructed FoV.  
+- **Vibration node:** triaxial accelerometer mounted on **shower platform** near floor, maximizing coupling to footfall/impacts.  
+- Waterproofed enclosures; synchronized microcontroller clocks; in-situ calibration.
 
----
+![Bathroom Floorplan](./docs/Figures/bathroom_floorplan.png)
+![Setup Diagram](./docs/Figures/Experiment_Setting.png)
 
-## 5. Model Architecture
-
-### 5.1 Radar Stream (Motion–Mamba)
-- **LSK1D modules**: extract large-scale temporal context.  
-- **Mamba2Block1D**: linear-time modeling of long-range dependencies.  
-- **Switch–MoE adapter + temporal attention**: adapts to diverse radar conditions.  
-
-### 5.2 Vibration Stream (Impact–Griffin)
-- **LSK1D front-end**: emphasize sharp transient patterns.  
-- **GLRU-based GriffinBlock1D**: retains long ringing signals while reacting to sudden spikes.  
-- **Inter-Channel Attention (ICA)**: captures cross-axis dependencies in 3D vibrations.  
-
-### 5.3 Cross-Modal Fusion
-- **Local cross-conditioning**: vibration guides radar aggregation and vice versa.  
-- **Low-rank bilinear interaction (MLB)**: enforces multiplicative agreement between modalities.  
-- **Fusion Switch–MoE**: dynamically selects expert pathways under different activity contexts.  
-
-![Overall structure](./docs/Figures/architecture.png)  
-*Figure 1. Overall architecture of the proposed dual-branch fusion framework.*
+**Dataset scale.** > **3 hours** of synchronized data; ~**1.1×10^5 radar frames** (≈12.5 Hz) and **3.1×10^6 vibration samples** (100 Hz). Frame-level labels (±250 ms tolerance) and subject-independent **60/20/20** splits (train/val/test).  
+**Release plan.** Dataset will be publicly released upon paper acceptance/publication.
 
 ---
 
-## 6. Experimental Design
-- Controlled **bathroom mock-up** with shower running at 36 °C and wet floor.  
-- **8 real-world scenarios + 1 empty baseline**.  
-- Each trial lasted 20–120 seconds, with frame-level annotation aligned via vibration energy peaks.  
+## 5. Experimental Design
+Experiments were conducted in a full-scale bathroom mock-up with tiled walls, a glass partition, and a continuously running shower under wet-floor conditions to replicate realistic risks. We designed nine scenarios covering both non-fall and fall activities: an empty baseline, light and heavy object drops, normal walking, bent-posture walking, wall-supported walking, static standing, squatting, and intentional falls. Each non-empty scenario comprised multiple trials lasting 20–120 seconds to ensure variability. Falls were performed under the supervision of a trained spotter with safety padding in place. Radar and vibration streams were tightly synchronized, and frame-level annotations were derived by aligning vibration energy peaks with radar motion cues. In total, the protocol yielded over 3 hours of multimodal data (~1.1×10⁵ radar frames and ~3.1×10⁶ vibration samples), establishing a rigorous benchmark for privacy-preserving fall detection in wet bathroom environments.
 
-![scenarios in the bathroom](./docs/Figures/Exp_Behavior.png)  
-*Figure 4. Nine evaluation scenarios in the bathroom environment.*  
+Each non-empty scenario has multiple trials (20–120 s). Falls were performed with a trained spotter and safety padding.
+
+![Scenario Types](./docs/Figures/Exp_Behavior.png)
+
+---
+
+<<<<<<< HEAD
+## 6. Model Architecture
+![Network Overview](./docs/Figures/overview.png)
+
+CAMF-SR is a **dual-stream** model with **linear-time temporal modeling** and **sparse expert routing**:
+
+- **Motion–Mamba (radar)**: Large Selective Kernel (LSK1D) front end → **state-space** temporal blocks (Mamba-like) → Switch–MoE adapter + attention pooling.
+- **Impact–Griffin (vibration)**: LSK1D front end → **GLRU/HGRU2** memory + local attention → **Inter-Channel Attention (ICA)** → attention pooling.
+- **Fusion**: **Cross-conditioned** sequence interaction within a local window → **low-rank bilinear** token coupling → **Fusion Switch–MoE** → fall head.
+
+### 6.1 Radar (Motion–Mamba) Stream
+- **Goal:** capture **pre-impact** collapse kinematics without quadratic attention cost.  
+- **Blocks:** LSK1D (multi-scale receptive fields) → Mamba2Block1D (linear-time long dependencies) → Switch–MoE + attention pooling.
+
+![LSK & Switch–MoE](./docs/Figures/lsk_switchmoe.png)
+![u-Free Mamba](./docs/Figures/ufree_mamba.png)
+
+### 6.2 Vibration (Impact–Griffin) Stream
+- **Goal:** preserve **sharp transients** and short ringing; adapt to cross-axis coupling.  
+- **Blocks:** LSK1D → GriffinBlock1D (GLRU memory + local self-attn) → **ICA** (covariance-normalized channel weighting) → attention pooling.
+
+![Griffin Block](./docs/Figures/griffin_block_1d.png)
+
+### 6.3 Cross-Conditioned Fusion & Classifier
+- **Cross-conditioning:** vibration onsets steer radar aggregation; radar macro-motion sharpens impact emphasis.  
+- **Low-rank bilinear (MLB):** multiplicative token interaction with rank constraints.  
+- **Fusion Switch–MoE:** routes contexts to specialized experts with a lightweight auxiliary balance loss.  
+- **Head:** sigmoid classifier for fall vs. non-fall.
+
+![Fusion MoE](./docs/Figures/moe_fusion_layer.png)
 
 ---
 
 ## 7. Results and Performance
 
+**Test-split (Fall-class view):**  
+**Accuracy 96.09% · Precision 94.82% · Recall 87.90% · F1 91.12%**
+
 ### 7.1 Scenario-wise Metrics
+Heavy object drops are the most confounding (high-energy nonhuman impacts), while locomotion/squatting maintain high F1 with fused cues.
 
-![eight senerio confusion matrices](./docs/Figures/eight_senerio.png)  
+![Confusion Matrix](./docs/Figures/confusion_matrix.png)
+![Scenario Metrics](./docs/Figures/scenario_metrics.png)
+![PR & ROC](./docs/Figures/ROC.png)
 
-This table summarizes the performance of our proposed network across eight bathroom scenarios. The system achieves an overall accuracy of 96.28%, precision of 95.47%, recall of 87.49%, and F1-score of 91.23%. Even under challenging conditions such as heavy object drops (accuracy 91.3%, F1 78.6%) and bent posture walking (accuracy 94.9%, F1 88.1%), the model maintains strong performance. In easier cases like squatting, the system reaches nearly perfect results (accuracy 99.3%, precision 100%, F1 98.4%). These results highlight not only the high overall accuracy but also the stability of performance across diverse real-world scenarios, making the method reliable for deployment in bathroom environments.
+| Scenario             | Eval. Windows (N) | Non-Fall Accuracy | Non-Fall Precision | Non-Fall Recall | Non-Fall F1 | Fall Accuracy | Fall Precision | Fall Recall | Fall F1 |
+|----------------------|-------------------|-------------------|--------------------|-----------------|-------------|---------------|----------------|-------------|---------|
+| Empty Bathroom       | 218  | 97.10 | 96.55 | 90.32 | 93.33 | 97.10 | 96.55 | 90.32 | 93.33 |
+| Light Object Drop    | 498  | 96.38 | 93.33 | 90.32 | 91.80 | 96.38 | 93.33 | 90.32 | 91.80 |
+| Heavy Object Drop    | 380  | 91.30 | 88.00 | 70.97 | 78.57 | 91.30 | 88.00 | 70.97 | 78.57 |
+| Normal Walking       | 1188 | 97.83 | 96.67 | 93.55 | 95.08 | 97.83 | 96.67 | 93.55 | 95.08 |
+| Bent Posture Walk    | 896  | 94.93 | 92.86 | 83.87 | 88.14 | 94.93 | 92.86 | 83.87 | 88.14 |
+| Wall-Supported Walk  | 610  | 97.08 | 95.87 | 87.10 | 91.27 | 97.08 | 96.13 | 87.10 | 91.34 |
+| Static Standing      | 617  | 96.35 | 96.43 | 87.10 | 91.53 | 96.35 | 96.43 | 87.10 | 91.53 |
+| Squatting            | 291  | 96.27 | 94.33 | 96.77 | 95.53 | 96.27 | 95.82 | 96.77 | 96.29 |
+| **Total (simple mean)**   | --   | 95.91 | 94.97 | 87.50 | 90.66 | 95.89 | 95.19 | 87.50 | 90.76 |
+| **Total (weighted mean)** | --   | 96.17 | 94.60 | 87.90 | 91.06 | **96.09** | **94.82** | **87.90** | **91.12** |
+*Table II. Scenario-wise performance metrics.*
 
-- ROC AUC = **0.968**  
-- High robustness across both fall and non-fall activities.  
-
-![Overall ROC](./docs/Figures/ROC.png)  
-
-*Figure 5. Overall ROC and precision–recall curves across scenarios.*  
+Table II presents the scenario-wise evaluation in wet bathroom environments. The results highlight the robustness of CAMF-SR, maintaining >95% accuracy across most daily activities, while significantly outperforming in challenging cases like heavy object drops, achieving a weighted F1 of 91.12%.
 
 ### 7.2 Comparison with State-of-the-Art
+CAMF-SR matches the strongest radar-only systems on accuracy but **exceeds prior privacy-preserving baselines in precision and F1**, reducing false alarms in wet, cluttered bathrooms.
 
-![performace comparation](./docs/Figures/comparation.png)  
+| Author | Model | Detection Method | Accuracy (%) | Precision (%) | Recall (%) |
+|--------|-------|------------------|--------------|---------------|------------|
+| Rezaei et al. | CNN | mmWave Radar | 88.7 | 69.9 | 85.5 |
+| Maitre et al. | CNN–LSTM | UWB Radar | 77.0 | 86.0 | 89.0 |
+| Yao et al. | Range–vertical angle map cls. | mmWave Radar | 86.7 | 84.7 | 88.9 |
+| Li et al. | CNN–LSTM | mmWave Radar | **96.8** | 84.6 | 89.6 |
+| He et al. | RBF Neural Net | Radar Sensor | 85.9 | 88.3 | 82.8 |
+| Clemente et al. | Multiclass SVM | Smart Seismic Sensing | 91.2 | 74.2 | 73.7 |
+| Hanif et al. | SVM | CW Doppler Radar | 89.0 | 88.0 | 87.0 |
+| Wang et al. | Transformer | mmWave Radar | 94.5 | 94.2 | 86.7 |
+| Sadreazami et al. | CNN | UWB Radar | 82.9 | 92.8 | 81.2 |
+| Swarubini et al. | ResNet-50 | UWB Radar | 67.2 | 50.6 | **98.8** |
+| Yang et al. | Bi-LSTM+CNN | mmWave Radar | 93.1 | 93.8 | 91.3 |
+| Dai et al. | Improved YOLOX | mmWave Radar + Vision | 93.4 | 94.6 | 95.6 |
+| Sun et al. | Attention–GRU | Multimodal Sensor Fusion | 94.2 | 92.4 | 83.8 |
+| Meng et al. | CNN–LSTM–Attn | Wi-Fi CSI + Accelerometer | 93.1 | 94.3 | 91.2 |
+| Alkhaldi et al. | ResNet-18 | mmWave Radar | 93.0 | 91.4 | 90.2 |
+| Zhang et al. | Att-CNN-LSTM | FMCW Radar | 93.5 | 90.2 | 86.7 |
+| **Ours (CAMF-SR)** | **Our Method** | **mmWave Radar + Vibration** | _96.1_ | _**94.8**_ | _87.9_ |
+*Table III. Comparison with state-of-the-art fall detection methods.*
 
-Compared to prior radar- or multimodal-based approaches, our method not only delivers the highest precision (95.47%) but also sustains balanced accuracy (96.3%) and recall (87.49%), avoiding the trade-offs seen in other methods. For example, models emphasizing recall often suffer sharp drops in precision (e.g., ResNet-50: recall 98.8% but precision only 50.6%), while radar-only CNN–LSTM models achieve high accuracy but lower precision. In contrast, our framework remains both high-performing and stable across all metrics, making it more reliable for real-world deployment.
+Table III compares CAMF-SR with 16 prior fall detection methods across various sensing modalities. Our framework achieves the second-highest accuracy (96.1%), the highest precision (94.8%), and competitive recall, demonstrating its strong ability to reduce false alarms while maintaining reliable detection in bathroom environments.
+
+![Benchmark Comparison](./docs/Figures/benchmark_comparison.png)
 
 ### 7.3 Ablation Study
-- Removing **Mamba2Block1D/GLRU**: recall drops significantly.  
-- Removing **ICA**: increases false positives.  
-- Full **cross-conditioned fusion** delivers the best trade-off.  
+We ablate **LR-temporal blocks**, **MoE+Attention**, **ICA**, and the **fusion stack**. Cross-conditioning + MLB notably boosts F1; the fusion Switch–MoE contributes additional robustness at constant-time inference.
 
-![ablation study](./docs/Figures/ablation_study.png)  
-
-This table presents the results of our ablation study, where individual components of the proposed framework were selectively removed to assess their contributions. When using only a single modality (either radar or vibration), the model performs noticeably worse, with overall accuracy below 93% and F1 scores under 84%. As more components are introduced—such as ICA and cross-modal bilinear fusion—the performance steadily improves, demonstrating the benefit of combining motion and impact cues with attention-based modeling. The complete configuration, with all modules enabled, achieves the best balance, reaching 96.3% accuracy, 95.5% precision, 87.5% recall, and a 91.2% F1 score. This confirms that each module contributes to performance gains, and the full multimodal design provides the strongest and most reliable detection results.
+![Ablation Study](./docs/Figures/ablation_study.png)
 
 ---
 
 ## 8. Conclusion and Future Work
-This work presents a **resource-efficient, privacy-preserving fall detection framework** that integrates radar and vibration sensing with **cross-conditioned fusion**.  
+CAMF-SR delivers **alignment-aware**, **computationally bounded** fusion for bathroom fall detection without cameras or wearables. It consistently reduces false alarms from object drops and water-induced clutter while keeping sensitivity high. Future directions include broader population studies, adaptive synchronization under drift, and additional privacy-preserving modalities for generalization across bathrooms and installations.
 
-**Future directions**:  
-- Deploying in **long-term trials with elderly participants**.  
-- Developing **edge-optimized** versions for home IoT devices.  
-- Expanding dataset to **multi-room, multi-floor** environments.  
-
-
+---
