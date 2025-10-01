@@ -8,6 +8,8 @@
 - [2. Motivation and Background](#2-motivation-and-background)
 - [3. Multimodal Sensor Selection](#3-multimodal-sensor-selection)
 - [4. System Setup and Dataset Collection](#4-system-setup-and-dataset-collection)
+  - [4.1 Participants](#41-participants)
+  - [4.2 Dataset Scale and Release Plan](#42-dataset-scale-and-release-plan)
 - [5. Experimental Design](#5-experimental-design)
 - [6. Model Architecture](#6-model-architecture)
   - [6.1 Radar (Motion–Mamba) Stream](#61-radar-motionmamba-stream)
@@ -45,9 +47,12 @@ Experiments were conducted in a full-scale bathroom mock-up (approx. **3.70 × 2
 - **Vibration node:** triaxial accelerometer mounted on **shower platform** near floor, maximizing coupling to footfall/impacts.  
 - Waterproofed enclosures; synchronized microcontroller clocks; in-situ calibration.
 
-
 ![Setup Diagram](./docs/Figures/Experiment_Setting.png)
 
+### 4.1 Participants  
+A total of 48 healthy volunteers (24 male, 24 female) participated in the experiments.  
+Table I summarizes their demographics, showing balanced gender distribution and similar anthropometrics across groups.  
+This design ensured unbiased data collection and reliable evaluation of the proposed system.  
 
 | Characteristic      | All (N=48)     | Male (n=24)   | Female (n=24) |
 |---------------------|----------------|---------------|---------------|
@@ -57,7 +62,10 @@ Experiments were conducted in a full-scale bathroom mock-up (approx. **3.70 × 2
 | BMI (kg/m²)         | 23.1 ± 2.6     | 23.7 ± 2.0    | 22.4 ± 1.9    |
 | Dominant hand (R/L) | 5 / 1          | 3 / 0         | 2 / 1         |
 
-This table summarizes the demographics of the 48 participants. The balanced gender distribution and similar anthropometrics across groups ensured unbiased data collection and reliable evaluation of the proposed framework. In total, more than 3 hours of synchronized multimodal data were collected, comprising approximately 1.1×10^5 radar frames (≈12.5 Hz) and 3.1×10^6 vibration samples (100 Hz). Each sequence was annotated with frame-level labels (±250 ms tolerance) and organized into subject-independent splits (60% training, 20% validation, 20% testing). The dataset will be publicly released upon acceptance of the paper, enabling full reproducibility and future benchmarking.
+### 4.2 Dataset Scale and Release Plan  
+In total, more than **3 hours** of synchronized multimodal data were collected, comprising ~**1.1×10^5 radar frames** (≈12.5 Hz) and **3.1×10^6 vibration samples** (100 Hz).  
+Each sequence was annotated with frame-level labels (±250 ms tolerance) and split into subject-independent subsets (**60% training, 20% validation, 20% testing**).  
+The dataset will be publicly released upon acceptance of the paper to enable full reproducibility and future benchmarking.  
 
 ---
 
