@@ -41,11 +41,13 @@ We evaluated privacy-preserving modalities under criteria such as **target relev
 ## 4. System Setup and Dataset Collection
 Experiments were conducted in a full-scale bathroom mock-up (approx. **3.70 × 2.50 m**), with ceramic tiles, glass partition, and running water.
 
+![Bathroom Floorplan](./docs/Figures/bathroom_floorplan.png)
+
 - **mmWave radar node:** wall-mounted near ceiling (~**2.45 m** height), unobstructed FoV.  
 - **Vibration node:** triaxial accelerometer mounted on **shower platform** near floor, maximizing coupling to footfall/impacts.  
 - Waterproofed enclosures; synchronized microcontroller clocks; in-situ calibration.
 
-![Bathroom Floorplan](./docs/Figures/bathroom_floorplan.png)
+
 ![Setup Diagram](./docs/Figures/Experiment_Setting.png)
 
 
@@ -170,6 +172,7 @@ We ablate **LR-temporal blocks**, **MoE+Attention**, **ICA**, and the **fusion s
 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | **96.1** | **94.8** | **87.9** | **91.1** |
 
 Table IV highlights the ablation results. Removing key modules or sensor modalities leads to significant performance drops, while the full CAMF-SR model with all components achieves the best results (Accuracy 96.1%, Precision 94.8%, F1 91.1), demonstrating the critical role of both radar–vibration fusion and cross-conditioned MoE design.
+
 ---
 
 ## 8. Conclusion and Future Work
