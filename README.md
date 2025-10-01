@@ -24,8 +24,6 @@
 ## 1. Introduction
 Falls are a major hazard for older adults living independently, with bathrooms posing the **highest risk** due to wet floors, hard surfaces, and confined geometry. **CAMF-SR** (Context-Aware Multimodal Fusion with Sparse Routing) is a **privacy-preserving** fall detection system that fuses **mmWave radar** (pre-impact motion) and **floor vibration** (impact evidence). Our design enforces **collapse–impact temporal consistency** via **cross-conditioned fusion**, and achieves **high precision** while keeping **latency predictable** for embedded deployment.
 
-![Overview Diagram](./docs/Figures/overview.png)
-
 ---
 
 ## 2. Motivation and Background
@@ -79,6 +77,8 @@ CAMF-SR is a **dual-stream** model with **linear-time temporal modeling** and **
 - **Motion–Mamba (radar)**: Large Selective Kernel (LSK1D) front end → **state-space** temporal blocks (Mamba-like) → Switch–MoE adapter + attention pooling.
 - **Impact–Griffin (vibration)**: LSK1D front end → **GLRU/HGRU2** memory + local attention → **Inter-Channel Attention (ICA)** → attention pooling.
 - **Fusion**: **Cross-conditioned** sequence interaction within a local window → **low-rank bilinear** token coupling → **Fusion Switch–MoE** → fall head.
+
+![Overview Diagram](./docs/Figures/overview.png)
 
 ### 6.1 Radar (Motion–Mamba) Stream
 - **Goal:** capture **pre-impact** collapse kinematics without quadratic attention cost.  
