@@ -36,9 +36,6 @@ Wearables are often not worn in bathrooms; cameras/microphones are unsuitable du
 ## 3. Multimodal Sensor Selection
 We evaluated privacy-preserving modalities under criteria such as **target relevance, recall, deployability, privacy, availability, energy, and cost**. The pairing of **FMCW mmWave radar** and **triaxial vibration** obtained the highest composite score for bathrooms: radar supplies **pre-impact kinematics**; vibration provides **high-SNR impact cues**.
 
-![Sensor Scoring Framework](./docs/Figures/sensor_selection_framework.png)
-![Privacy-Focused Modality Evaluation Summary](./docs/Figures/modality_evaluation_summary.png)
-
 ---
 
 ## 4. System Setup and Dataset Collection
@@ -121,7 +118,6 @@ Heavy object drops are the most confounding (high-energy nonhuman impacts), whil
 | Squatting            | 291  | 96.27 | 94.33 | 96.77 | 95.53 | 96.27 | 95.82 | 96.77 | 96.29 |
 | **Total (simple mean)**   | --   | 95.91 | 94.97 | 87.50 | 90.66 | 95.89 | 95.19 | 87.50 | 90.76 |
 | **Total (weighted mean)** | --   | 96.17 | 94.60 | 87.90 | 91.06 | **96.09** | **94.82** | **87.90** | **91.12** |
-*Table II. Scenario-wise performance metrics.*
 
 Table II presents the scenario-wise evaluation in wet bathroom environments. The results highlight the robustness of CAMF-SR, maintaining >95% accuracy across most daily activities, while significantly outperforming in challenging cases like heavy object drops, achieving a weighted F1 of 91.12%.
 
@@ -147,7 +143,6 @@ CAMF-SR matches the strongest radar-only systems on accuracy but **exceeds prior
 | Alkhaldi et al. | ResNet-18 | mmWave Radar | 93.0 | 91.4 | 90.2 |
 | Zhang et al. | Att-CNN-LSTM | FMCW Radar | 93.5 | 90.2 | 86.7 |
 | **Ours (CAMF-SR)** | **Our Method** | **mmWave Radar + Vibration** | _96.1_ | _**94.8**_ | _87.9_ |
-*Table III. Comparison with state-of-the-art fall detection methods.*
 
 Table III compares CAMF-SR with 16 prior fall detection methods across various sensing modalities. Our framework achieves the second-highest accuracy (96.1%), the highest precision (94.8%), and competitive recall, demonstrating its strong ability to reduce false alarms while maintaining reliable detection in bathroom environments.
 
@@ -156,8 +151,19 @@ Table III compares CAMF-SR with 16 prior fall detection methods across various s
 ### 7.3 Ablation Study
 We ablate **LR-temporal blocks**, **MoE+Attention**, **ICA**, and the **fusion stack**. Cross-conditioning + MLB notably boosts F1; the fusion Switch–MoE contributes additional robustness at constant-time inference.
 
-![Ablation Study](./docs/Figures/ablation_study.png)
+| LSK1D | LR-Temporal | MoE+Attn | ICA | X-Cond+MLB | Fusion-MoE | Vibration | Radar | Accuracy (%) | Precision (%) | Recall (%) | F1 (%) |
+|-------|-------------|----------|-----|------------|------------|-----------|-------|--------------|---------------|------------|--------|
+| ✔ | ✔ | ✔ | ✔ |   |   | ✔ |   | 92.4 | 85.1 | 82.1 | 83.6 |
+| ✔ | ✔ | ✔ |   |   |   |   | ✔ | 86.9 | 66.7 | 88.0 | 75.8 |
+| ✔ | ✔ |   | ✔ |   |   | ✔ |   | 90.7 | 87.2 | 78.9 | 82.9 |
+| ✔ |   | ✔ | ✔ |   |   | ✔ |   | 84.7 | 71.2 | 52.8 | 60.4 |
+| ✔ |   | ✔ |   |   |   |   | ✔ | 80.5 | 67.1 | 83.9 | 74.5 |
+| ✔ | ✔ | ✔ | ✔ |   |   | ✔ | ✔ | 90.4 | 88.5 | 80.0 | 84.1 |
+| ✔ | ✔ | ✔ | ✔ | ✔ |   | ✔ | ✔ | 93.8 | 91.8 | 84.2 | 87.8 |
+| ✔ | ✔ | ✔ | ✔ | ✔ |   | ✔ | ✔ | 95.1 | 93.2 | 91.0 | 92.1 |
+| ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | **96.1** | **94.8** | **87.9** | **91.1** |
 
+Table IV highlights the ablation results. Removing key modules or sensor modalities leads to significant performance drops, while the full CAMF-SR model with all components achieves the best results (Accuracy 96.1%, Precision 94.8%, F1 91.1), demonstrating the critical role of both radar–vibration fusion and cross-conditioned MoE design.
 ---
 
 ## 8. Conclusion and Future Work
