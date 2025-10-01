@@ -73,7 +73,6 @@ Each non-empty scenario has multiple trials (20–120 s). Falls were performed w
 ---
 
 ## 6. Model Architecture
-![Network Overview](./docs/Figures/overview.png)
 
 CAMF-SR is a **dual-stream** model with **linear-time temporal modeling** and **sparse expert routing**:
 
