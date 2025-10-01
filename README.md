@@ -105,9 +105,6 @@ CAMF-SR is a **dual-stream** model with **linear-time temporal modeling** and **
 
 ## 7. Results and Performance
 
-**Test-split (Fall-class view):**  
-**Accuracy 96.09% · Precision 94.82% · Recall 87.90% · F1 91.12%**
-
 ### 7.1 Scenario-wise Metrics
 Heavy object drops are the most confounding (high-energy nonhuman impacts), while locomotion/squatting maintain high F1 with fused cues.
 
