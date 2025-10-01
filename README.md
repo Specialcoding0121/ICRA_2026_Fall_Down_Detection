@@ -110,8 +110,6 @@ CAMF-SR is a **dual-stream** model with **linear-time temporal modeling** and **
 ### 7.1 Scenario-wise Metrics
 Heavy object drops are the most confounding (high-energy nonhuman impacts), while locomotion/squatting maintain high F1 with fused cues.
 
-![Confusion Matrix](./docs/Figures/confusion_matrix.png)
-![Scenario Metrics](./docs/Figures/scenario_metrics.png)
 ![PR & ROC](./docs/Figures/ROC.png)
 
 | Scenario             | Eval. Windows (N) | Non-Fall Accuracy | Non-Fall Precision | Non-Fall Recall | Non-Fall F1 | Fall Accuracy | Fall Precision | Fall Recall | Fall F1 |
